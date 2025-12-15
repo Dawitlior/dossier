@@ -1,0 +1,739 @@
+import { useState, useEffect } from 'react';
+import { Menu, X, ChevronUp, Moon, Sun } from 'lucide-react';
+
+function App() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll('section[id]');
+      const scrollPosition = window.scrollY + 100;
+
+      setShowScrollTop(window.scrollY > 400);
+
+      sections.forEach((section) => {
+        const sectionTop = (section as HTMLElement).offsetTop;
+        const sectionHeight = (section as HTMLElement).offsetHeight;
+        const sectionId = section.getAttribute('id') || '';
+
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          setActiveSection(sectionId);
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+    }
+  }, []);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+    localStorage.setItem('theme', !isDarkMode ? 'dark' : 'light');
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const offset = 80;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+    setIsMenuOpen(false);
+  };
+
+  const sections = [
+    { id: 'summary', title: 'Executive Summary' },
+    { id: 'profile', title: 'Personal Profile and Mindset' },
+    { id: 'philosophy', title: 'Philosophical Foundations' },
+    { id: 'architecture', title: 'System Architecture' },
+    { id: 'liquidity', title: 'Global Liquidity Integration' },
+    { id: 'risk', title: 'Risk Management' },
+    { id: 'relative-strength', title: 'Relative Strength and Rotation' },
+    { id: 'value', title: 'Why This System Matters' },
+    { id: 'conclusion', title: 'Conclusion' }
+  ];
+
+  return (
+    <div className={`min-h-screen bg-theme technical-grid transition-colors duration-300 ${isDarkMode ? 'dark-mode' : ''}`}>
+      <nav className="fixed top-0 left-0 right-0 backdrop-blur-md border-b border-theme-secondary z-50 transition-colors duration-300" style={{ backgroundColor: `rgba(var(--bg-primary), 0.98)` }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex-shrink-0">
+              <h1 className="text-sm font-semibold tracking-tight mono-accent text-theme transition-colors duration-300">SYS.DESIGN.001</h1>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-lg transition-colors hover:bg-theme-accent"
+                aria-label="Toggle dark mode"
+              >
+                {isDarkMode ? <Sun size={20} className="text-theme-secondary" /> : <Moon size={20} className="text-theme-muted" />}
+              </button>
+
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 rounded-lg transition-colors hover:bg-theme-accent text-theme"
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+
+            <div className="hidden md:flex space-x-1">
+              {sections.slice(0, 4).map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`px-3 py-2 text-xs font-medium transition-all mono-accent tracking-wide ${
+                    activeSection === section.id
+                      ? 'text-theme border-b-2 border-theme'
+                      : 'text-theme-muted hover:text-theme'
+                  }`}
+                >
+                  {section.title.split(' ').slice(0, 2).join(' ')}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-theme-secondary bg-theme transition-colors duration-300">
+            <div className="px-4 py-2 space-y-1">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => scrollToSection(section.id)}
+                  className={`block w-full text-left px-3 py-2 text-xs font-medium transition-colors mono-accent ${
+                    activeSection === section.id
+                      ? 'text-theme border-l-2 border-theme'
+                      : 'text-theme-muted hover:text-theme border-l-2 border-transparent'
+                  }`}
+                >
+                  {section.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+
+      <main className="pt-16">
+        <div className="bg-theme border-b-2 border-theme py-16 px-4 transition-colors duration-300">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-start space-x-4 mb-8">
+              <div className="flex-shrink-0">
+                <div className={`w-16 h-16 flex items-center justify-center transition-colors duration-300 ${isDarkMode ? 'bg-theme text-theme' : 'bg-theme text-theme'}`} style={{ backgroundColor: isDarkMode ? 'rgb(var(--text-primary))' : 'rgb(var(--bg-primary))', border: `2px solid rgb(var(--border-primary))` }}>
+                  <span className="text-xs mono-accent font-bold" style={{ color: isDarkMode ? 'rgb(var(--bg-primary))' : 'rgb(var(--text-primary))' }}>SYS</span>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="text-xs mono-accent mb-2 tracking-widest text-theme-muted transition-colors duration-300">TECHNICAL PAPER / VOL.001 / 2024</div>
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight tracking-tight text-theme transition-colors duration-300">
+                  System Design Dossier
+                </h1>
+                <p className="text-lg md:text-xl mb-4 font-light text-theme-secondary transition-colors duration-300">
+                  Logic-Driven Trend Following for Modern Markets
+                </p>
+              </div>
+            </div>
+            <div className="h-px bg-theme-secondary transition-colors duration-300"></div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <section id="summary" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">00</div>
+            <h2 className="text-2xl font-bold mb-8 tracking-tight mono-accent text-theme transition-colors duration-300">
+              Executive Summary
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base leading-relaxed mb-5 font-light text-theme-secondary transition-colors duration-300">
+                This dossier is intended for recruitment professionals and hiring managers who want to understand
+                the way I think about markets and why I have built a systematic trading framework. I do not work
+                with crypto stories or hype; instead, I focus on developing logic and architecture for trend-following
+                systems that allocate capital based on data, macro liquidity and relative strength.
+              </p>
+              <p className="text-base leading-relaxed font-light text-theme-secondary transition-colors duration-300">
+                The document explains my philosophy, the rationale behind the system I created and the evidence
+                supporting key design choices. It emphasises high-level logic rather than code and demonstrates
+                the complexity of thought required to build robust trend-following engines.
+              </p>
+            </div>
+          </section>
+
+          <section id="profile" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">01</div>
+            <h2 className="text-2xl font-bold mb-8 tracking-tight mono-accent text-theme transition-colors duration-300">
+              1. Personal Profile and Mindset
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base leading-relaxed mb-8 font-light text-theme-secondary transition-colors duration-300">
+                I see myself first and foremost as a system designer. My interest lies in building decision
+                architectures that can ingest diverse data streams, classify market regimes and adjust portfolio
+                exposure accordingly. Over the past several years, I have developed an in-house Meta-Engine and
+                Decision Engine that implement a disciplined, rule-based approach to capital allocation.
+              </p>
+
+              <div className="space-y-8">
+                <div className="border-l-2 border-theme-muted pl-6 py-2 research-card transition-colors duration-300">
+                  <h3 className="text-sm font-bold mb-3 tracking-wide mono-accent text-theme transition-colors duration-300">Numbers Over Narratives</h3>
+                  <p className="text-sm leading-relaxed font-light text-theme-secondary transition-colors duration-300">
+                    I do not invest because of a compelling story or charismatic founder. I treat each asset
+                    class as a data series and each decision as a probabilistic bet. The removal of emotion
+                    and noise is a defining feature of systematic strategies.
+                  </p>
+                </div>
+
+                <div className="border-l-2 border-theme-muted pl-6 py-2 research-card transition-colors duration-300">
+                  <h3 className="text-sm font-bold mb-3 tracking-wide mono-accent text-theme transition-colors duration-300">Focus on Structural Drivers</h3>
+                  <p className="text-sm leading-relaxed font-light text-theme-secondary transition-colors duration-300">
+                    I research how macro liquidity, volatility and cross-asset correlations impact returns,
+                    rather than focusing on individual projects. This aligns with risk parity and factor-based
+                    allocation where risk exposures, not names, drive portfolio construction.
+                  </p>
+                </div>
+
+                <div className="border-l-2 border-theme-muted pl-6 py-2 research-card transition-colors duration-300">
+                  <h3 className="text-sm font-bold mb-3 tracking-wide mono-accent text-theme transition-colors duration-300">Probabilistic Reasoning</h3>
+                  <p className="text-sm leading-relaxed font-light text-theme-secondary transition-colors duration-300">
+                    Markets are uncertain, and there is no single correct forecast. I build frameworks that
+                    specify what would invalidate a thesis and how the portfolio reacts to different regimes.
+                    This fosters consistency and accountability.
+                  </p>
+                </div>
+
+                <div className="border-l-2 border-theme-muted pl-6 py-2 research-card transition-colors duration-300">
+                  <h3 className="text-sm font-bold mb-3 tracking-wide mono-accent text-theme transition-colors duration-300">Discipline and Documentation</h3>
+                  <p className="text-sm leading-relaxed font-light text-theme-secondary transition-colors duration-300">
+                    Every change in my system is documented through research memos that explain the rationale,
+                    assumptions and stress tests. This documentation discipline is critical for institutional
+                    investors.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="philosophy" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">02</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              2. Philosophical Foundations
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base text-slate-800 leading-relaxed mb-10 font-light">
+                My investing philosophy draws on several well-researched concepts that provide a rigorous
+                foundation for systematic trading:
+              </p>
+
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">2.1 Trend Following and Market Regimes</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-6 font-light">
+                  Markets exhibit momentum and volatility clustering. Instead of trying to forecast the next
+                  price move, I classify the environment into regimes defined by trend direction (up, sideways,
+                  down) and volatility level (high, low). Exposure is adjusted accordingly:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-8">
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Low-Volatility Uptrend</h4>
+                    <p className="text-slate-600 text-xs leading-relaxed font-light">Allow moderate leverage; allocate more capital to risk assets.</p>
+                  </div>
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">High-Volatility Uptrend</h4>
+                    <p className="text-slate-600 text-xs leading-relaxed font-light">Maintain exposure but reduce leverage and size.</p>
+                  </div>
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Sideways/Low Volatility</h4>
+                    <p className="text-slate-600 text-xs leading-relaxed font-light">Deploy neutral strategies or stay in cash.</p>
+                  </div>
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">High-Volatility Downtrend</h4>
+                    <p className="text-slate-600 text-xs leading-relaxed font-light">Cut exposure to risk assets and raise cash.</p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  This adaptive allocation is based on the observation that momentum regimes persist and that
+                  high volatility often follows high volatility. It ensures that the portfolio avoids risk in
+                  unfavourable conditions rather than trying to time precise inflection points.
+                </p>
+              </div>
+
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">2.2 Risk Parity and Balanced Exposures</h3>
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  Risk parity aims to equalise risk contributions across asset classes instead of allocating
+                  capital equally. By balancing risk exposures, the portfolio becomes less dependent on equity
+                  beta and yields smoother performance. In practice this means scaling each component (trend
+                  following, mean reversion, macro signals) so that its volatility contribution to the whole is
+                  similar. During crises, correlations converge and risk parity assumptions can break down, so I
+                  combine risk parity with stress testing and discretionary risk caps.
+                </p>
+              </div>
+
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">2.3 Relative Strength and Rotational Momentum</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-6 font-light">
+                  Relative strength (also known as cross-sectional momentum) ranks assets based on their recent
+                  performance relative to each other and invests in the leaders while avoiding laggards. Rotational
+                  momentum strategies compare performance across asset classes and select only the best performers
+                  for inclusion.
+                </p>
+                <div className="bg-slate-50 border-l-2 border-slate-300 pl-6 py-4 my-6">
+                  <p className="text-slate-700 text-xs leading-relaxed font-light italic">
+                    Research compiled by Quantpedia shows that a rotational momentum system that selects
+                    top-performing assets each month delivered robust performance across different measurement
+                    periods over eight decades. Kessler and Scherer's study on macro momentum confirms that
+                    investing based on relative momentum across currencies, equities, real estate and commodities
+                    produces stable outperformance that survives transaction costs and stability tests.
+                  </p>
+                </div>
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  Faber's research on relative strength finds that portfolios built on relative strength outperform
+                  buy-and-hold benchmarks in approximately 70% of years and that adding a trend-following parameter
+                  reduces volatility and drawdown.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">2.4 Global Liquidity as a Macro Driver</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-6 font-light">
+                  I view global liquidity as the most important macro driver of risk asset trends. Studies by Lyn
+                  Alden show that Bitcoin tends to move in the same direction as global liquidity about 83% of the
+                  time. 21Shares reports that data from 2013 to 2024 shows a correlation of 0.94 between Bitcoin's
+                  price and global M2 money supply.
+                </p>
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  When central bank liquidity expands, risk assets—including Bitcoin—generally rally; when liquidity
+                  tightens, risk assets fall. I use Bitcoin as a high-beta liquidity barometer to gauge when the
+                  broader risk environment is favourable or unfavourable.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="architecture" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">03</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              3. System Architecture: Meta-Engine and Decision Engine
+            </h2>
+            <div className="max-w-none">
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">3.1 Overview</h3>
+                <p className="text-base text-slate-800 leading-relaxed mb-8 font-light">
+                  My system consists of two primary layers:
+                </p>
+
+                <div className="space-y-6 mb-8">
+                  <div className="border-l-2 border-slate-900 pl-6 py-3 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-sm mono-accent">Meta-Engine</h4>
+                    <p className="text-slate-700 text-sm font-light leading-relaxed">
+                      A supervisory layer that classifies the market regime, sets the overall risk budget and
+                      coordinates among strategies. It adjusts the target portfolio volatility, chooses between
+                      risk-on and risk-off modes and enforces stress-test limits.
+                    </p>
+                  </div>
+                  <div className="border-l-2 border-slate-900 pl-6 py-3 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-sm mono-accent">Decision Engine</h4>
+                    <p className="text-slate-700 text-sm font-light leading-relaxed">
+                      The core module that aggregates multiple signals—trend, mean reversion, macro liquidity,
+                      volatility and relative strength—to generate desired exposures. It converts raw signals
+                      into a unified score and translates that into position sizing and rotation decisions.
+                    </p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  The architecture is deliberately modular. Each signal is a self-contained module with conceptual
+                  justification and out-of-sample testing. This modularity allows for adaptation without rewriting
+                  the entire system. The Decision Engine uses simple heuristics, not machine-learning models, to
+                  aggregate signals. Macrosynergy research emphasises that equal weighting of conceptually justified
+                  factors delivers more robust results than complex machine-learning models, which often fail
+                  out-of-sample.
+                </p>
+              </div>
+
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">3.2 Signal Components</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-8 font-light">
+                  The Decision Engine draws on a variety of signals that capture different aspects of market behaviour:
+                </p>
+
+                <div className="space-y-6">
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Trend Signals</h4>
+                    <p className="text-slate-700 text-xs leading-relaxed font-light">
+                      Simple moving-average crossovers and time-series momentum indicators identify whether an
+                      asset is in an uptrend or downtrend. These are widely used in trend-following strategies
+                      and align with evidence that momentum is a persistent anomaly.
+                    </p>
+                  </div>
+
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Volatility Signals</h4>
+                    <p className="text-slate-700 text-xs leading-relaxed font-light">
+                      Measures of realised and implied volatility help classify regimes. High volatility triggers
+                      caution and smaller position sizes; low volatility allows larger exposure.
+                    </p>
+                  </div>
+
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Macro/Liquidity Signals</h4>
+                    <p className="text-slate-700 text-xs leading-relaxed font-light">
+                      Changes in global M2, central bank balance sheets and funding rates feed into the system.
+                      This module uses Bitcoin as a proxy for risk appetite and liquidity conditions.
+                    </p>
+                  </div>
+
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Relative Strength Rankings</h4>
+                    <p className="text-slate-700 text-xs leading-relaxed font-light">
+                      Assets are ranked based on their cross-sectional momentum over various lookback windows.
+                      The top-ranked assets are candidates for inclusion, while the bottom-ranked are avoided.
+                      Relative strength ensures capital flows to leaders and avoids falling knives.
+                    </p>
+                  </div>
+
+                  <div className="border border-slate-200 p-5 research-card">
+                    <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Mean Reversion Checks</h4>
+                    <p className="text-slate-700 text-xs leading-relaxed font-light">
+                      To avoid overcrowded trades and potential reversals, mean-reversion metrics assess whether
+                      a price has deviated too far from its moving average. This prevents buying at extremes.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">3.3 State Machine and Rotation Logic</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-6 font-light">
+                  The Meta-Engine maintains a state machine that determines high-level posture: Risk-On, Risk-Off,
+                  Neutral. State transitions are triggered by a combination of trend direction, volatility level and
+                  liquidity conditions.
+                </p>
+                <div className="bg-slate-50 border-l-2 border-slate-300 pl-6 py-4 my-6">
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    For example, if trend signals turn positive and volatility is below a threshold, the system
+                    moves to Risk-On; if volatility spikes or liquidity contracts, it shifts to Risk-Off. When
+                    in Risk-On, the Decision Engine selects top-ranked assets via relative strength and sets
+                    position sizes. When in Risk-Off, positions are reduced or closed and capital may be parked
+                    in cash or short-duration bonds.
+                  </p>
+                </div>
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  Relative strength drives rotation between assets. Each month (or shorter frequency depending on
+                  liquidity), the Decision Engine reassesses rankings and rotates exposure to the current leaders.
+                  Faber's research demonstrates that adding a trend-following parameter to relative strength models
+                  reduces volatility and drawdown, so my rotation logic requires that top-ranked assets also exhibit
+                  positive absolute momentum before inclusion.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="liquidity" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">04</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              4. Global Liquidity Integration
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base text-slate-800 leading-relaxed mb-8 font-light">
+                I believe that macro liquidity cycles underpin many asset price trends. Several observations
+                support this view:
+              </p>
+
+              <div className="space-y-6 mb-8">
+                <div className="border border-slate-200 p-5 border-l-2 border-l-slate-900 research-card">
+                  <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">High correlation between liquidity and Bitcoin</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    As noted, Bitcoin's price correlates strongly with global M2 money supply and moves with global
+                    liquidity over 80% of the time. Bitcoin thus acts as a global liquidity barometer.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-5 border-l-2 border-l-slate-900 research-card">
+                  <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Liquidity drives risk appetite</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    Expanding central bank balance sheets increase risk appetite, driving flows into equities,
+                    credit, commodities and crypto. Conversely, when central banks tighten, risk assets typically
+                    underperform.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-5 border-l-2 border-l-slate-900 research-card">
+                  <h4 className="font-bold text-slate-900 mb-2 text-xs mono-accent tracking-wider">Macro signals inform risk budgets</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    If liquidity indicators suggest expansion, the Meta-Engine may permit a higher target volatility
+                    and allocate more to risk assets; if liquidity tightens, risk budgets are reduced.
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-sm text-slate-700 leading-relaxed font-light">
+                In practice, I feed real-time macro data into the system and adjust the regime classification and
+                position sizing accordingly. This macro integration ensures that the portfolio is aligned with the
+                broader monetary environment rather than just focusing on price history.
+              </p>
+            </div>
+          </section>
+
+          <section id="risk" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">05</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              5. Risk Management and Overfitting Avoidance
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base text-slate-800 leading-relaxed mb-10 font-light">
+                Designing complex systems is only valuable if they are robust under stress. My risk management
+                framework comprises several layers:
+              </p>
+
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">5.1 Volatility Targeting and Risk Parity</h3>
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  Each strategy in the portfolio is scaled to contribute similar volatility. HedgeNordic's research
+                  describes how systematic managers scale each strategy to the same volatility level and use
+                  conservative scaling factors for strategies with heavy tails. I adopt a similar approach, targeting
+                  a defined annualised volatility and dynamically adjusting position size to remain within that target.
+                  This prevents any single strategy from dominating performance.
+                </p>
+              </div>
+
+              <div className="mb-12">
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">5.2 Stress Testing and Drawdown Caps</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-6 font-light">
+                  Before deploying a strategy, I simulate extreme scenarios—rapid price drops, volatility spikes,
+                  liquidity freezes—and ensure that the combination of strategies would not lose more than a
+                  predetermined percentage of the portfolio.
+                </p>
+                <div className="bg-slate-50 border border-slate-200 p-6">
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    Stress tests recommended by HedgeNordic cap potential losses to around 3% during severe market
+                    events. I incorporate similar drawdown limits and cut exposures if they are breached.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-wide mono-accent">5.3 Simple Models and Robustness</h3>
+                <p className="text-sm text-slate-700 leading-relaxed mb-6 font-light">
+                  I deliberately avoid overly complex models. Overfitting occurs when a strategy is tuned to perform
+                  well on past data but fails in live trading. To mitigate this, I use walk-forward analysis and
+                  Monte-Carlo simulations to test strategies on out-of-sample data.
+                </p>
+                <p className="text-sm text-slate-700 leading-relaxed font-light">
+                  Simple heuristic models with conceptual justification (e.g., moving averages, relative strength)
+                  are preferred because they generalise better. High variance machine-learning models, while impressive
+                  in backtests, are avoided because they often crumble in live markets.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="relative-strength" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">06</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              6. Relative Strength and Rotation: Rationale and Evidence
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base text-slate-800 leading-relaxed mb-8 font-light">
+                Relative strength is central to my system because it ties directly into the idea of capital flows
+                to leadership. The rationale and evidence are as follows:
+              </p>
+
+              <div className="space-y-6 mb-8">
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Historical success of rotational momentum</h4>
+                  <p className="text-slate-700 leading-relaxed text-xs font-light">
+                    Quantpedia's analysis of the asset class momentum rotational system shows that comparing
+                    performance across asset classes and holding only the best performers yields robust results
+                    across decades. The simplicity of monthly rebalancing and the ability to use any asset universe
+                    (equities, bonds, commodities, REITs) make the strategy widely applicable.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Macro momentum across assets</h4>
+                  <p className="text-slate-700 leading-relaxed text-xs font-light">
+                    Research by Kessler and Scherer demonstrates that investing based on relative momentum across
+                    currencies, equities, real estate and commodities delivers stable outperformance that survives
+                    transaction costs and stability tests. The success is attributed to predictable variations in
+                    the investment opportunity set.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Relative strength with trend filter</h4>
+                  <p className="text-slate-700 leading-relaxed text-xs font-light">
+                    Meb Faber's paper finds that relative strength portfolios outperform buy-and-hold benchmarks in
+                    roughly 70% of years and that adding a trend-following parameter (absolute momentum) reduces
+                    volatility and drawdown. This combination of cross-sectional and time-series momentum forms the
+                    basis of my rotation logic.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Business cycle sensitivity</h4>
+                  <p className="text-slate-700 leading-relaxed text-xs font-light">
+                    Different asset classes respond differently to business cycles; rotating between them allows
+                    the portfolio to hold assets with the highest probability of returns and the lowest probability
+                    of losses. By ranking assets on relative performance and rotating accordingly, the system adapts
+                    to changing economic conditions.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 text-white p-8 border-2 border-slate-900">
+                <h3 className="text-base font-bold mb-4 mono-accent tracking-wider">Implementation in My System</h3>
+                <p className="leading-relaxed text-sm font-light">
+                  At regular intervals (weekly or monthly), the Decision Engine ranks all tradable assets (e.g.,
+                  Bitcoin, Ethereum, major equity indices, government bonds, commodities) based on risk-adjusted
+                  returns over several lookback windows. Only assets with positive absolute momentum and top relative
+                  momentum scores are eligible for inclusion. The Meta-Engine then allocates capital across these
+                  assets according to the risk budget. If macro liquidity or volatility conditions are unfavourable,
+                  the allocation to risk assets is reduced even if they rank highly, reflecting prudent risk management.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="value" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">07</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              7. Why This System Matters for Employers
+            </h2>
+            <div className="max-w-none">
+              <p className="text-base text-slate-800 leading-relaxed mb-10 font-light">
+                For a prospective employer—be it a hedge fund, asset manager or proprietary trading group—my work
+                offers several valuable qualities:
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Rigorous Thought Process</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    The system is grounded in well-researched principles and documented with research memos that
+                    expose every assumption and trade-off. This level of transparency is essential for institutional
+                    oversight and due diligence.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Modular Complexity</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    The architecture combines multiple signals, risk controls and macro factors in a cohesive state
+                    machine. I understand how to design complex logic flows without overcomplication and can integrate
+                    new modules as markets evolve.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Evidence-Based Strategy Selection</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    Each component—trend following, relative strength, macro signals—is backed by academic and
+                    industry research with demonstrated efficacy. I do not chase hype but rely on evidence.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Risk Discipline</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    Through risk parity, volatility scaling and stress tests, the system emphasises capital
+                    preservation and controlled drawdowns. Employers can trust that I prioritise risk management
+                    over unchecked performance chasing.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Macro Awareness</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    By integrating global liquidity signals and using Bitcoin as a barometer, I ensure that the
+                    strategy is aligned with broader monetary conditions. This macro integration is valuable for
+                    firms that seek tactical asset allocation or macro trading expertise.
+                  </p>
+                </div>
+
+                <div className="border border-slate-200 p-6 research-card">
+                  <h4 className="font-bold text-slate-900 mb-3 text-xs mono-accent tracking-wider">Relative Performance Focus</h4>
+                  <p className="text-slate-700 text-xs leading-relaxed font-light">
+                    The use of relative strength and rotational momentum ensures that capital is directed to leaders
+                    while avoiding laggards, a principle shown to produce robust results. This cross-asset perspective
+                    can complement existing strategies.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="conclusion" className="mb-20 scroll-mt-20 technical-article-section">
+            <div className="section-number">08</div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8 tracking-tight mono-accent">
+              8. Conclusion and Next Steps
+            </h2>
+            <div className="max-w-none">
+              <div className="bg-slate-900 text-white p-10 border-2 border-slate-900">
+                <p className="text-sm leading-relaxed mb-6 font-light">
+                  My approach to markets reflects a holistic synthesis of trend following, relative strength, risk
+                  parity, macro analysis and disciplined research. I design systems that are adaptive to different
+                  market regimes, resilient to unforeseen shocks and grounded in evidence rather than speculation.
+                </p>
+                <p className="text-sm leading-relaxed mb-6 font-light">
+                  The ability to build and document such complex logic makes me well-suited for roles requiring
+                  system design, quantitative research or tactical asset allocation.
+                </p>
+                <div className="border-t border-slate-700 pt-6 mt-6">
+                  <p className="text-sm leading-relaxed font-light">
+                    If this dossier resonates, the next step would be a deeper discussion on specific mandates and
+                    how my expertise could be integrated into your team. I would be happy to walk through example
+                    research memos, discuss additional modules (e.g., cross-asset vol spreads, liquidity regressions)
+                    and explore how my frameworks can be tailored to your objectives.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer className="bg-slate-900 text-white py-12 border-t-2 border-slate-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-slate-400 text-xs mono-accent text-center tracking-wider">
+            SYSTEM DESIGN DOSSIER / LOGIC-DRIVEN TREND FOLLOWING FOR MODERN MARKETS / 2024
+          </p>
+        </div>
+      </footer>
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 bg-slate-900 text-white p-3 border-2 border-slate-900 transition-all duration-300 hover:bg-white hover:text-slate-900"
+          aria-label="Scroll to top"
+        >
+          <ChevronUp size={24} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default App;
